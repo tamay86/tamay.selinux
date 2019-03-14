@@ -1,0 +1,37 @@
+---
+# tasks file for tamay.selinux
+
+- name: "Install package dependencies"
+  package:
+    state: present
+    name:
+      - libselinux-python
+      - libsemanage-python
+      - policycoreutils-python
+
+- name: "Set SELinux state to {{ selinux_state }}"
+  selinux:
+    state: "{{ selinux_state }}"
+    policy: "{{ selinux_policy }}"
+
+- name: "Configure SELinux boolean"
+  seboolean:
+    name: "{{ item.name }}"
+    persistent: "{{ item.persistent | default('yes') }}"
+    state: "{{ item.state | default('yes') }}"
+  loop: "{{ selinux_boolean }}"
+
+- name: "Configure SELinux port"
+  seport:
+    ports: "{{ item.ports }}"
+    proto: "{{ item.proto }}"
+    setype: "{{ item.setype }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ selinux_port }}"
+
+- name: "Configure SELinux file context"
+  sefcontext:
+    target: "{{ item.target }}"
+    setype: "{{ item.setype }}"
+    state: "{{ item.state | default('present') }}"
+  loop: "{{ selinux_fcontext }}"

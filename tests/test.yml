@@ -1,0 +1,26 @@
+---
+
+- hosts: all
+  remote_user: vagrant
+  become: yes
+
+  vars:
+    selinux_state: 'enforcing'
+    selinux_policy: targeted
+
+    selinux_boolean:
+      - name: httpd_can_network_connect
+
+    selinux_port:
+      - ports: 8888
+        proto: tcp
+        setype: http_port_t
+        state: present
+
+    selinux_fcontext:
+      - target: '/srv/git_repos(/.*)?'
+        setype: httpd_sys_rw_content_t
+        state: present
+
+  roles:
+  - ../../tamay.selinux
